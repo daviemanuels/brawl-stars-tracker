@@ -11,3 +11,98 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Player {
+  id String @id @default(cuid())
+
+  tag  String @unique
+  name String
+
+  trophies        Int
+  highestTrophies Int
+
+  expLevel Int
+
+  totalVictories3v3 Int
+  soloVictories     Int
+  duoVictories      Int
+
+  clubTag  String?
+  clubName String?
+
+  iconId Int?
+
+  battles Battle[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tag])
+}
+
+model Battle {
+  id String @id @default(cuid())
+
+  battleTime DateTime
+
+  mode   String
+  modeId Int?
+
+  type String?
+
+  result String?
+
+  rank Int?
+
+  duration Int?
+
+  trophyChange Int?
+
+  map String?
+
+  eventId Int?
+
+  playerId String
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  participants BattleParticipant[]
+
+  createdAt DateTime @default(now())
+
+  @@index([battleTime])
+  @@index([playerId])
+  @@index([mode])
+  @@index([eventId])
+}
+
+model BattleParticipant {
+  id String @id @default(cuid())
+
+  battleId String
+
+  tag  String
+  name String
+
+  brawlerId   Int
+  brawlerName String
+
+  brawlerPower    Int
+  brawlerTrophies Int
+
+  battle Battle @relation(fields: [battleId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([tag])
+  @@index([brawlerId])
+  @@index([battleId])
+}
+
+model Brawler {
+  id Int @id
+
+  name String
+
+  createdAt DateTime @default(now())
+}

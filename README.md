@@ -15,9 +15,10 @@ Advanced analytics platform for Brawl Stars players.
 
 ## Features
 
-- Player stats
-- Battle history
-- Analytics dashboard
-- Real-time updates
-- Rankings
-- Match tracking
+- Player profile synchronization
+- Real-time Brawl Stars API integration
+- Battle history persistence
+- Match participant tracking
+- PostgreSQL analytics storage
+- Incremental battle synchronization
+- Prisma ORM integration

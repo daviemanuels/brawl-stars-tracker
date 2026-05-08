@@ -1,11 +1,9 @@
 import { Router } from "express";
 
+import { playerRoutes } from "../modules/players/routes/player.routes";
+
 const router = Router();
 
-router.get("/", (req, res) => {
-  return res.json({
-    message: "Brawl Stars Tracker API running",
-  });
-});
+router.use("/players", playerRoutes);
 
 export { router };
