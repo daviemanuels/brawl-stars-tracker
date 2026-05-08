@@ -15,6 +15,10 @@ class SyncBattleLogService {
     for (const item of items) {
       const battleDate = parseBattleTime(item.battleTime);
 
+      if (isNaN(battleDate.getTime())) {
+        continue;
+      }
+
       const existingBattle = await prisma.battle.findFirst({
         where: {
           playerId,
@@ -49,30 +53,74 @@ class SyncBattleLogService {
           eventId: item.event?.id,
 
           playerId,
+
+          rawData: item,
         },
       });
 
-      const participants = [
-        ...(item.battle.teams || []).flat(),
-        ...(item.battle.players || []),
-      ];
+      // Solo/Duo Showdown
+      if (item.battle.players) {
+        let position = 1;
 
-      for (const participant of participants) {
-        if (!participant.brawler) {
-          continue;
+        for (const participant of item.battle.players) {
+          if (!participant.brawler) {
+            continue;
+          }
+
+          await prisma.battleParticipant.create({
+            data: {
+              battleId: battle.id,
+
+              tag: participant.tag,
+              name: participant.name,
+
+              isMainPlayer:
+                participant.tag.replace("#", "").toUpperCase() ===
+                tag.replace("#", "").toUpperCase(),
+
+              position,
+
+              brawlerId: participant.brawler.id,
+              brawlerName: participant.brawler.name,
+
+              brawlerPower: participant.brawler.power,
+              brawlerTrophies: participant.brawler.trophies,
+            },
+          });
+
+          position++;
         }
+      }
 
-        await prisma.battleParticipant.create({
-          data: {
-            battleId: battle.id,
-            tag: participant.tag,
-            name: participant.name,
-            brawlerId: participant.brawler.id,
-            brawlerName: participant.brawler.name,
-            brawlerPower: participant.brawler.power,
-            brawlerTrophies: participant.brawler.trophies,
-          },
-        });
+      // 3v3 / Ranked
+      if (item.battle.teams) {
+        for (const [teamIndex, team] of item.battle.teams.entries()) {
+          for (const participant of team) {
+            if (!participant.brawler) {
+              continue;
+            }
+
+            await prisma.battleParticipant.create({
+              data: {
+                battleId: battle.id,
+
+                tag: participant.tag,
+                name: participant.name,
+
+                isMainPlayer:
+                  participant.tag.toUpperCase() === tag.toUpperCase(),
+
+                team: teamIndex + 1,
+
+                brawlerId: participant.brawler.id,
+                brawlerName: participant.brawler.name,
+
+                brawlerPower: participant.brawler.power,
+                brawlerTrophies: participant.brawler.trophies,
+              },
+            });
+          }
+        }
       }
     }
   }

@@ -34,8 +34,9 @@ model Player {
 
   battles Battle[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  playerSnapshots PlayerSnapshot[]
 
   @@index([tag])
 }
@@ -62,6 +63,8 @@ model Battle {
 
   eventId Int?
 
+  rawData Json?
+
   playerId String
 
   player Player @relation(fields: [playerId], references: [id])
@@ -84,6 +87,12 @@ model BattleParticipant {
   tag  String
   name String
 
+  isMainPlayer Boolean @default(false)
+
+  team Int?
+
+  position Int?
+
   brawlerId   Int
   brawlerName String
 
@@ -97,6 +106,22 @@ model BattleParticipant {
   @@index([tag])
   @@index([brawlerId])
   @@index([battleId])
+}
+
+model PlayerSnapshot {
+  id String @id @default(cuid())
+
+  playerId String
+
+  trophies Int
+
+  highestTrophies Int
+
+  createdAt DateTime @default(now())
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@index([playerId, createdAt])
 }
 
 model Brawler {

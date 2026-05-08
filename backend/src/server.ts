@@ -1,5 +1,6 @@
 import { app } from "./app";
+import "./jobs/syncPlayersJob";
 
-app.listen(3333, () => {
-  console.log("🚀 Server running on port 3333");
+app.listen(4000, () => {
+  console.log("🚀 Server running on port 4000");
 });

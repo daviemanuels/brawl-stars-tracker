@@ -44,6 +44,16 @@ class GetPlayerService {
       },
     });
 
+    await prisma.playerSnapshot.create({
+      data: {
+        playerId: player.id,
+
+        trophies: player.trophies,
+
+        highestTrophies: player.highestTrophies,
+      },
+    });
+
     return player;
   }
 }
